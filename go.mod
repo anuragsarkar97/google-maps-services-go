@@ -3,6 +3,8 @@ module googlemaps.github.io/maps
 go 1.14
 
 require (
+	github.com/gojek/heimdall v5.0.2+incompatible // indirect
+	github.com/gojek/heimdall/v7 v7.0.2 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/kr/pretty v0.2.0
 	github.com/sergi/go-diff v1.1.0
