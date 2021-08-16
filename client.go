@@ -21,22 +21,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gojek/heimdall"
-	"github.com/gojek/heimdall/v7/httpclient"
+	"golang.org/x/time/rate"
+	"googlemaps.github.io/maps/internal"
+	"googlemaps.github.io/maps/metrics"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
-
-	"golang.org/x/time/rate"
-	"googlemaps.github.io/maps/internal"
-	"googlemaps.github.io/maps/metrics"
 )
 
 // Client may be used to make requests to the Google Maps WebService APIs
 type Client struct {
-	httpClient        heimdall.Client
+	httpClient        CustomHttpClient
 	apiKey            string
 	baseURL           string
 	clientID          string
@@ -46,6 +42,10 @@ type Client struct {
 	channel           string
 	experienceId      []string
 	metricReporter    metrics.Reporter
+}
+
+type CustomHttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
 }
 
 // ClientOption is the type of constructor options for NewClient(...).
@@ -71,8 +71,9 @@ func NewClient(options ...ClientOption) (*Client, error) {
 		requestsPerSecond: defaultRequestsPerSecond,
 		metricReporter:    metrics.NoOpReporter{},
 	}
-	cl := httpclient.NewClient(httpclient.WithHTTPClient(&http.Client{}))
-	err := WithHTTPClient(cl)(c)
+	var t http.Client
+	t = http.Client{}
+	err := WithHTTPClient(&t)(c)
 	if err != nil {
 		return nil, err
 	}
@@ -95,9 +96,9 @@ func NewClient(options ...ClientOption) (*Client, error) {
 
 // WithHTTPClient configures a Maps API client with a http.Client to make requests
 // over.
-func WithHTTPClient(c *httpclient.Client) ClientOption {
+func WithHTTPClient(c CustomHttpClient) ClientOption {
 	return func(client *Client) error {
-		client.httpClient = httpclient.NewClient(httpclient.WithHTTPClient(c))
+		client.httpClient = c
 		return nil
 	}
 }
@@ -272,8 +273,7 @@ func (c *Client) post(ctx context.Context, config *apiConfig, apiReq interface{}
 func (c *Client) do(ctx context.Context, req *http.Request) (*http.Response, error) {
 	client := c.httpClient
 	if client == nil {
-		timeout := 1000 * time.Millisecond
-		client = httpclient.NewClient(httpclient.WithHTTPTimeout(timeout))
+		client = &http.Client{}
 	}
 	return client.Do(req.WithContext(ctx))
 }
