@@ -3,12 +3,13 @@ package metrics_test
 import (
 	"context"
 	"fmt"
+	maps "github.com/anuragsarkar97/google-maps-services-go"
+	"github.com/anuragsarkar97/google-maps-services-go/metrics"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"googlemaps.github.io/maps"
-	"googlemaps.github.io/maps/metrics"
+
 )
 
 type testReporter struct {

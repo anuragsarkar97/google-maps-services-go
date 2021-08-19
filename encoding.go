@@ -18,8 +18,8 @@
 package maps
 
 import (
-	"anuragsarkar97/google-maps-services-go/internal"
 	"encoding/json"
+	"github.com/anuragsarkar97/google-maps-services-go/internal"
 	"net/url"
 )
 

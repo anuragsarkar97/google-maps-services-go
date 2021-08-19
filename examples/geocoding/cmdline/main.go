@@ -20,13 +20,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	maps "github.com/anuragsarkar97/google-maps-services-go"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/kr/pretty"
-	"googlemaps.github.io/maps"
 )
 
 var (

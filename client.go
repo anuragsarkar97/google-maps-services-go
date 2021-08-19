@@ -15,14 +15,14 @@
 package maps
 
 import (
-	"anuragsarkar97/google-maps-services-go/internal"
-	"anuragsarkar97/google-maps-services-go/metrics"
 	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/anuragsarkar97/google-maps-services-go/internal"
+	"github.com/anuragsarkar97/google-maps-services-go/metrics"
 	"golang.org/x/time/rate"
 	"io"
 	"net/http"

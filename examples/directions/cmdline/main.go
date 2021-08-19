@@ -20,6 +20,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	maps "github.com/anuragsarkar97/google-maps-services-go"
 	"log"
 	"net/http"
 	"os"
@@ -27,7 +28,6 @@ import (
 	"time"
 
 	"github.com/kr/pretty"
-	"googlemaps.github.io/maps"
 )
 
 var (

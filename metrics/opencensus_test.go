@@ -2,11 +2,10 @@ package metrics_test
 
 import (
 	"context"
+	maps "github.com/anuragsarkar97/google-maps-services-go"
+	"github.com/anuragsarkar97/google-maps-services-go/metrics"
 	"go.opencensus.io/stats/view"
 	"testing"
-
-	"googlemaps.github.io/maps"
-	"googlemaps.github.io/maps/metrics"
 )
 
 func TestClientWithOpenCensus(t *testing.T) {
