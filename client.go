@@ -15,6 +15,8 @@
 package maps
 
 import (
+	"anuragsarkar97/google-maps-services-go/internal"
+	"anuragsarkar97/google-maps-services-go/metrics"
 	"bytes"
 	"context"
 	"encoding/base64"
@@ -22,8 +24,6 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/time/rate"
-	"googlemaps.github.io/maps/internal"
-	"googlemaps.github.io/maps/metrics"
 	"io"
 	"net/http"
 	"net/url"
