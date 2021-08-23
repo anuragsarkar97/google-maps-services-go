@@ -96,7 +96,7 @@ func NewClient(options ...ClientOption) (*Client, error) {
 // over.
 func WithHTTPClient(c IHttpClient) ClientOption {
 	return func(client *Client) error {
-		t := client.httpClient.(*http.Client)
+		t := c.(*http.Client)
 		if _, ok := t.Transport.(*transport); !ok {
 			k := t.Transport
 			if k != nil {
