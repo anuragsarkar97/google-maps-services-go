@@ -69,11 +69,12 @@ type testInterface interface {
 }
 
 type testClient struct {
-	http.Client
+	*http.Client
 }
 
 func (t *testClient) Do(r *http.Request) (*http.Response, error) {
 	fmt.Println("completing an api call from a custom http client")
+	defer fmt.Println("done")
 	return t.Client.Do(r)
 }
 
@@ -86,7 +87,7 @@ func main() {
 		client, err = maps.NewClient(
 			maps.WithAPIKey(*apiKey),
 			maps.WithRateLimit(2),
-			maps.WithHTTPClient(&testClient{}))
+			maps.WithHTTPClient(&testClient{Client : &http.Client{}}))
 	} else if *clientID != "" || *signature != "" {
 		client, err = maps.NewClient(maps.WithClientIDAndSignature(*clientID, *signature))
 	} else {
