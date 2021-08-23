@@ -96,7 +96,10 @@ func NewClient(options ...ClientOption) (*Client, error) {
 // over.
 func WithHTTPClient(c IHttpClient) ClientOption {
 	return func(client *Client) error {
-		t := c.(*http.Client)
+		t, converted := c.(*http.Client)
+		if !converted {
+			return fmt.Errorf("error converting IHttpClient to http client")
+		}
 		if _, ok := t.Transport.(*transport); !ok {
 			k := t.Transport
 			if k != nil {
