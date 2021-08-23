@@ -32,7 +32,7 @@ import (
 
 // Client may be used to make requests to the Google Maps WebService APIs
 type Client struct {
-	httpClient        CustomHttpClient
+	httpClient        IHttpClient
 	apiKey            string
 	baseURL           string
 	clientID          string
@@ -44,7 +44,7 @@ type Client struct {
 	metricReporter    metrics.Reporter
 }
 
-type CustomHttpClient interface {
+type IHttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
@@ -71,9 +71,7 @@ func NewClient(options ...ClientOption) (*Client, error) {
 		requestsPerSecond: defaultRequestsPerSecond,
 		metricReporter:    metrics.NoOpReporter{},
 	}
-	var t http.Client
-	t = http.Client{}
-	err := WithHTTPClient(&t)(c)
+	err := WithHTTPClient(&http.Client{})(c)
 	if err != nil {
 		return nil, err
 	}
@@ -96,8 +94,17 @@ func NewClient(options ...ClientOption) (*Client, error) {
 
 // WithHTTPClient configures a Maps API client with a http.Client to make requests
 // over.
-func WithHTTPClient(c CustomHttpClient) ClientOption {
+func WithHTTPClient(c IHttpClient) ClientOption {
 	return func(client *Client) error {
+		t := client.httpClient.(*http.Client)
+		if _, ok := t.Transport.(*transport); !ok {
+			k := t.Transport
+			if k != nil {
+				t.Transport = &transport{Base: t.Transport}
+			} else {
+				t.Transport = &transport{Base: http.DefaultTransport}
+			}
+		}
 		client.httpClient = c
 		return nil
 	}
