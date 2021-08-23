@@ -20,11 +20,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	maps "github.com/anuragsarkar97/google-maps-services-go"
 	"image/jpeg"
 	"log"
 	"os"
 
-	"googlemaps.github.io/maps"
 )
 
 var (

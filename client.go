@@ -21,19 +21,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/anuragsarkar97/google-maps-services-go/internal"
+	"github.com/anuragsarkar97/google-maps-services-go/metrics"
+	"golang.org/x/time/rate"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"golang.org/x/time/rate"
-	"googlemaps.github.io/maps/internal"
-	"googlemaps.github.io/maps/metrics"
 )
 
 // Client may be used to make requests to the Google Maps WebService APIs
 type Client struct {
-	httpClient        *http.Client
+	httpClient        IHttpClient
 	apiKey            string
 	baseURL           string
 	clientID          string
@@ -45,12 +44,17 @@ type Client struct {
 	metricReporter    metrics.Reporter
 }
 
+type IHttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 // ClientOption is the type of constructor options for NewClient(...).
 type ClientOption func(*Client) error
 
 var defaultRequestsPerSecond = 50
 
 type contextKey string
+
 func (c contextKey) String() string {
 	return "maps " + string(c)
 }
@@ -67,7 +71,10 @@ func NewClient(options ...ClientOption) (*Client, error) {
 		requestsPerSecond: defaultRequestsPerSecond,
 		metricReporter:    metrics.NoOpReporter{},
 	}
-	WithHTTPClient(&http.Client{})(c)
+	err := WithHTTPClient(&http.Client{})(c)
+	if err != nil {
+		return nil, err
+	}
 	for _, option := range options {
 		err := option(c)
 		if err != nil {
@@ -87,14 +94,19 @@ func NewClient(options ...ClientOption) (*Client, error) {
 
 // WithHTTPClient configures a Maps API client with a http.Client to make requests
 // over.
-func WithHTTPClient(c *http.Client) ClientOption {
+func WithHTTPClient(c IHttpClient) ClientOption {
 	return func(client *Client) error {
-		if _, ok := c.Transport.(*transport); !ok {
-			t := c.Transport
-			if t != nil {
-				c.Transport = &transport{Base: t}
+		t, converted := c.(*http.Client)
+		if !converted {
+			client.httpClient = c
+			return nil
+		}
+		if _, ok := t.Transport.(*transport); !ok {
+			k := t.Transport
+			if k != nil {
+				t.Transport = &transport{Base: t.Transport}
 			} else {
-				c.Transport = &transport{Base: http.DefaultTransport}
+				t.Transport = &transport{Base: http.DefaultTransport}
 			}
 		}
 		client.httpClient = c
@@ -272,7 +284,7 @@ func (c *Client) post(ctx context.Context, config *apiConfig, apiReq interface{}
 func (c *Client) do(ctx context.Context, req *http.Request) (*http.Response, error) {
 	client := c.httpClient
 	if client == nil {
-		client = http.DefaultClient
+		client = &http.Client{}
 	}
 	return client.Do(req.WithContext(ctx))
 }

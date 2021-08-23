@@ -20,13 +20,14 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	maps "github.com/anuragsarkar97/google-maps-services-go"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/kr/pretty"
-	"googlemaps.github.io/maps"
 )
 
 var (
@@ -63,13 +64,30 @@ func check(err error) {
 	}
 }
 
+type testInterface interface {
+	Do(r *http.Request) (*http.Response, error)
+}
+
+type testClient struct {
+	*http.Client
+}
+
+func (t *testClient) Do(r *http.Request) (*http.Response, error) {
+	fmt.Println("completing an api call from a custom http client")
+	defer fmt.Println("done")
+	return t.Client.Do(r)
+}
+
 func main() {
 	flag.Parse()
 
 	var client *maps.Client
 	var err error
 	if *apiKey != "" {
-		client, err = maps.NewClient(maps.WithAPIKey(*apiKey), maps.WithRateLimit(2))
+		client, err = maps.NewClient(
+			maps.WithAPIKey(*apiKey),
+			maps.WithRateLimit(2),
+			maps.WithHTTPClient(&testClient{Client : &http.Client{}}))
 	} else if *clientID != "" || *signature != "" {
 		client, err = maps.NewClient(maps.WithClientIDAndSignature(*clientID, *signature))
 	} else {

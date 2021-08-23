@@ -21,9 +21,9 @@ import (
 
 func TestClientTransportMutate(t *testing.T) {
 	c, _ := NewClient(WithAPIKey("AIza-Maps-API-Key"), WithHTTPClient(&http.Client{}))
-	tr, ok := c.httpClient.Transport.(*transport)
+	tr, ok := c.httpClient.(*http.Client).Transport.(*transport)
 	if !ok {
-		t.Errorf("Transport is expected to be a maps.transport, found to be a %T", c.httpClient.Transport)
+		t.Errorf("Transport is expected to be a maps.transport, found to be a %T", c.httpClient.(*http.Client).Transport)
 	}
 	if _, ok := tr.Base.(*transport); ok {
 		t.Errorf("Transport's Base shouldn't have been a maps.transport, found to be a %T", tr.Base)
@@ -33,9 +33,9 @@ func TestClientTransportMutate(t *testing.T) {
 func TestDefaultClientTransportMutate(t *testing.T) {
 	c, _ := NewClient(WithAPIKey("AIza-Maps-API-Key"))
 
-	tr, ok := c.httpClient.Transport.(*transport)
+	tr, ok := c.httpClient.(*http.Client).Transport.(*transport)
 	if !ok {
-		t.Errorf("Transport is expected to be a maps.transport, found to be a %T", c.httpClient.Transport)
+		t.Errorf("Transport is expected to be a maps.transport, found to be a %T", c.httpClient.(*http.Client).Transport)
 	}
 	if _, ok := tr.Base.(*transport); ok {
 		t.Errorf("Transport's Base shouldn't have been a maps.transport, found to be a %T", tr.Base)
